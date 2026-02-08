@@ -1,0 +1,38 @@
+# OS / macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Thumbnails
+Thumbs.db
+
+# IntelliJ / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# Gradle
+.gradle/
+build/
+
+# Logs
+logs/
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# Misc
+*.swp

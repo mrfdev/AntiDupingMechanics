@@ -1,0 +1,39 @@
+# AntiDupingMechanics
+#
+# Per-world configuration:
+# - Use worlds.__default__ as the baseline settings for all worlds.
+# - Add a world name under worlds.<worldname> to override any keys.
+#
+# Example:
+# worlds:
+#   __default__:
+#     chest_boats: { enabled: true, block_open_inventory: true }
+#   admin:
+#     chest_boats: { enabled: false }   # allow chest boats in admin world
+#     bundles: { enabled: false }       # allow adding to bundles in admin world
+
+debug:
+  enabled: false
+  # If true, logs debug lines to the console when actions are blocked
+  log_to_console: true
+
+messages:
+  prefix: "&8[&6AntiDuping&8] &r"
+
+worlds:
+  __default__:
+    chest_boats:
+      enabled: true
+      block_open_inventory: true
+      message: "&cYou can't use chest storage in chest boats on this server."
+
+    donkeys:
+      enabled: true
+      block_open_inventory: true
+      block_attach_chest: true
+      message: "&cYou can't use chest storage on pack animals on this server."
+
+    bundles:
+      enabled: true
+      block_insert_items: true
+      message: "&cYou can't put items into bundles on this server."

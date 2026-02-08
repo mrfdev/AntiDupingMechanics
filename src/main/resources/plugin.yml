@@ -1,0 +1,18 @@
+name: AntiDupingMechanics
+version: 1.1.0
+main: com.example.antiduping.AntiDupingMechanics
+api-version: "1.21"
+author: Floris
+
+commands:
+  antiduping:
+    description: Controls AntiDupingMechanics
+    usage: /antiduping <reload|status>
+
+permissions:
+  antiduping.admin:
+    description: Allows using /antiduping reload and /antiduping status
+    default: op
+  antiduping.bypass:
+    description: Bypass all AntiDupingMechanics blocks
+    default: op
