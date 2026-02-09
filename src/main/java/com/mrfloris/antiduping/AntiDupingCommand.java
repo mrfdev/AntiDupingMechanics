@@ -1,11 +1,13 @@
-package com.example.antiduping;
-
-import org.bukkit.ChatColor;
-import org.bukkit.command.*;
-import org.jetbrains.annotations.NotNull;
+package com.mrfloris.antiduping;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.ChatColor;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.jspecify.annotations.NonNull;
 
 public final class AntiDupingCommand implements CommandExecutor, TabCompleter {
 
@@ -22,7 +24,7 @@ public final class AntiDupingCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(@NonNull CommandSender sender, @NonNull Command command, @NonNull String label, @NonNull String @NonNull [] args) {
         if (!sender.hasPermission("antiduping.admin")) {
             sender.sendMessage(color("&cNo permission."));
             return true;
@@ -52,7 +54,7 @@ public final class AntiDupingCommand implements CommandExecutor, TabCompleter {
     }
 
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(@NonNull CommandSender sender, @NonNull Command command, @NonNull String alias, @NonNull String @NonNull [] args) {
         if (!sender.hasPermission("antiduping.admin")) return List.of();
         if (args.length == 1) {
             List<String> opts = new ArrayList<>();
