@@ -1,5 +1,7 @@
-package com.example.antiduping;
+package com.mrfloris.antiduping;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -21,25 +23,24 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BundleMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import org.jspecify.annotations.NonNull;
 
 public final class AntiDupingListener implements Listener {
 
     private final AntiDupingMechanics plugin;
-
+    private final Map<String, WorldSettings> perWorld = new HashMap<>();
     private boolean debugEnabled;
     private boolean debugToConsole;
     private String msgPrefix;
-
     private WorldSettings defaultSettings;
-    private final Map<String, WorldSettings> perWorld = new HashMap<>();
 
     public AntiDupingListener(AntiDupingMechanics plugin) {
         this.plugin = plugin;
         reloadFromConfig();
+    }
+
+    private static @NonNull String colorStatic(String s) {
+        return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
     }
 
     public void reloadFromConfig() {
@@ -71,12 +72,12 @@ public final class AntiDupingListener implements Listener {
         }
     }
 
-    public String statusDebug() {
+    public @NonNull String statusDebug() {
         return "enabled=" + debugEnabled + ", log_to_console=" + debugToConsole;
     }
 
-    public String statusWorldsLoaded() {
-        return String.valueOf(perWorld.size() + 1) + " (including __default__)";
+    public @NonNull String statusWorldsLoaded() {
+        return perWorld.size() + 1 + " (including __default__)";
     }
 
     private WorldSettings settingsForWorld(String worldName) {
@@ -84,7 +85,7 @@ public final class AntiDupingListener implements Listener {
         return perWorld.getOrDefault(worldName.toLowerCase(), defaultSettings);
     }
 
-    private String color(String s) {
+    private @NonNull String color(String s) {
         return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
     }
 
@@ -114,7 +115,7 @@ public final class AntiDupingListener implements Listener {
     // 1) Block opening ChestBoat inventory (but don't block riding).
     // 2) Block opening ChestedHorse inventory (donkeys/mules/llamas etc.).
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryOpen(InventoryOpenEvent event) {
+    public void onInventoryOpen(@NonNull InventoryOpenEvent event) {
         if (!(event.getPlayer() instanceof Player player)) return;
         if (bypass(player)) return;
 
@@ -143,7 +144,7 @@ public final class AntiDupingListener implements Listener {
 
     // Block attaching chests onto donkeys/mules/llamas/etc, and block bundle right-click item insert where applicable.
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInteractEntity(PlayerInteractEntityEvent event) {
+    public void onInteractEntity(@NonNull PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
         if (bypass(player)) return;
 
@@ -153,12 +154,11 @@ public final class AntiDupingListener implements Listener {
         if (ws.donkeys.enabled && ws.donkeys.blockAttachChest) {
             if (clicked instanceof ChestedHorse chestedHorse) {
                 ItemStack inHand = player.getInventory().getItem(event.getHand());
-                if (inHand != null && inHand.getType() == Material.CHEST) {
+                if (inHand.getType() == Material.CHEST) {
                     if (!chestedHorse.isCarryingChest()) {
                         event.setCancelled(true);
                         msg(player, ws.donkeys.message);
-                        debug("Blocked chest attach to chested-animal: player=" + player.getName() + ", world=" + player.getWorld().getName()
-                                + ", entity=" + clicked.getType());
+                        debug("Blocked chest attach to chested-animal: player=" + player.getName() + ", world=" + player.getWorld().getName() + ", entity=" + clicked.getType());
                         return;
                     }
                 }
@@ -179,7 +179,7 @@ public final class AntiDupingListener implements Listener {
 
     // Block adding items into bundles via inventory clicks (allow emptying).
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryClick(InventoryClickEvent event) {
+    public void onInventoryClick(@NonNull InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (bypass(player)) return;
 
@@ -190,11 +190,10 @@ public final class AntiDupingListener implements Listener {
         ItemStack cursor = event.getCursor();        // cursor item
 
         // Putting a cursor item onto a bundle (insert)
-        if (isBundle(current) && cursor != null && cursor.getType() != Material.AIR) {
+        if (isBundle(current) && cursor.getType() != Material.AIR) {
             event.setCancelled(true);
             msg(player, ws.bundles.message);
-            debug("Blocked bundle insert via click (cursor -> bundle): player=" + player.getName() + ", world=" + player.getWorld().getName()
-                    + ", cursor=" + cursor.getType());
+            debug("Blocked bundle insert via click (cursor -> bundle): player=" + player.getName() + ", world=" + player.getWorld().getName() + ", cursor=" + cursor.getType());
             return;
         }
 
@@ -202,13 +201,12 @@ public final class AntiDupingListener implements Listener {
         if (isBundle(cursor) && current != null && current.getType() != Material.AIR) {
             event.setCancelled(true);
             msg(player, ws.bundles.message);
-            debug("Blocked bundle insert via click (item -> cursor-bundle): player=" + player.getName() + ", world=" + player.getWorld().getName()
-                    + ", current=" + current.getType());
+            debug("Blocked bundle insert via click (item -> cursor-bundle): player=" + player.getName() + ", world=" + player.getWorld().getName() + ", current=" + current.getType());
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onInventoryDrag(InventoryDragEvent event) {
+    public void onInventoryDrag(@NonNull InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         if (bypass(player)) return;
 
@@ -216,15 +214,14 @@ public final class AntiDupingListener implements Listener {
         if (!ws.bundles.enabled || !ws.bundles.blockInsertItems) return;
 
         ItemStack cursor = event.getOldCursor();
-        if (cursor == null || cursor.getType() == Material.AIR) return;
+        if (cursor.getType() == Material.AIR) return;
 
         for (int rawSlot : event.getRawSlots()) {
             ItemStack inSlot = event.getView().getItem(rawSlot);
             if (isBundle(inSlot)) {
                 event.setCancelled(true);
                 msg(player, ws.bundles.message);
-                debug("Blocked bundle insert via drag: player=" + player.getName() + ", world=" + player.getWorld().getName()
-                        + ", cursor=" + cursor.getType());
+                debug("Blocked bundle insert via drag: player=" + player.getName() + ", world=" + player.getWorld().getName() + ", cursor=" + cursor.getType());
                 return;
             }
         }
@@ -236,14 +233,18 @@ public final class AntiDupingListener implements Listener {
         DonkeySettings donkeys = new DonkeySettings();
         BundleSettings bundles = new BundleSettings();
 
-        static WorldSettings fromConfig(ConfigurationSection sec, WorldSettings fallback) {
+        static @NonNull WorldSettings fromConfig(ConfigurationSection sec, WorldSettings fallback) {
             WorldSettings ws = (fallback == null ? new WorldSettings() : fallback.copy());
             if (sec == null) return ws;
             ws.applyOverrides(sec);
             return ws;
         }
 
-        void applyOverrides(ConfigurationSection sec) {
+        private static @NonNull String colorLocal(String s) {
+            return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
+        }
+
+        void applyOverrides(@NonNull ConfigurationSection sec) {
             // chest_boats
             ConfigurationSection cb = sec.getConfigurationSection("chest_boats");
             if (cb != null) {
@@ -270,16 +271,12 @@ public final class AntiDupingListener implements Listener {
             }
         }
 
-        WorldSettings copy() {
+        @NonNull WorldSettings copy() {
             WorldSettings ws = new WorldSettings();
             ws.chestBoats = chestBoats.copy();
             ws.donkeys = donkeys.copy();
             ws.bundles = bundles.copy();
             return ws;
-        }
-
-        private static String colorLocal(String s) {
-            return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
         }
     }
 
@@ -288,7 +285,7 @@ public final class AntiDupingListener implements Listener {
         boolean blockOpenInventory = true;
         String message = colorStatic("&cYou can't use chest storage in chest boats on this server.");
 
-        ChestBoatSettings copy() {
+        @NonNull ChestBoatSettings copy() {
             ChestBoatSettings s = new ChestBoatSettings();
             s.enabled = enabled;
             s.blockOpenInventory = blockOpenInventory;
@@ -303,7 +300,7 @@ public final class AntiDupingListener implements Listener {
         boolean blockAttachChest = true;
         String message = colorStatic("&cYou can't use chest storage on pack animals on this server.");
 
-        DonkeySettings copy() {
+        @NonNull DonkeySettings copy() {
             DonkeySettings s = new DonkeySettings();
             s.enabled = enabled;
             s.blockOpenInventory = blockOpenInventory;
@@ -318,16 +315,12 @@ public final class AntiDupingListener implements Listener {
         boolean blockInsertItems = true;
         String message = colorStatic("&cYou can't put items into bundles on this server.");
 
-        BundleSettings copy() {
+        @NonNull BundleSettings copy() {
             BundleSettings s = new BundleSettings();
             s.enabled = enabled;
             s.blockInsertItems = blockInsertItems;
             s.message = message;
             return s;
         }
-    }
-
-    private static String colorStatic(String s) {
-        return ChatColor.translateAlternateColorCodes('&', s == null ? "" : s);
     }
 }

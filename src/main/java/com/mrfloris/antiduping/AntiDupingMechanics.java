@@ -1,4 +1,4 @@
-package com.example.antiduping;
+package com.mrfloris.antiduping;
 
 import org.bukkit.plugin.java.JavaPlugin;
 

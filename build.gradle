@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group = 'com.example'
+group = 'com.mrfloris'
 version = '1.1.0'
 
 java {
@@ -17,9 +17,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly 'io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT'
+    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    implementation("org.jspecify:jspecify:1.0.0")
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.compilerArgs += ['-Xlint:deprecation']
 }
